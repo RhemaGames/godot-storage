@@ -17,9 +17,9 @@ func _ready():
 
 func recursive_search(path,dict):
 	
-	var dir = Directory.new()
-	if dir.open(path) == OK:
-		dir.list_dir_begin(true,true)
+	var dir = DirAccess.open(path)
+	if dir == OK:
+		dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
 		var file_name = dir.get_next()
 		while file_name != "":
 			if dir.current_is_dir():
