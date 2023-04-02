@@ -15,30 +15,28 @@ func _ready():
 #func _process(delta):
 #	pass
 
-func recursive_search(path,dict):
-	
+func recursive_search(org:String,filetypes:Array,path:String,dict:Dictionary):
 	var dir = DirAccess.open(path)
-	if dir == OK:
-		dir.list_dir_begin() # TODOGODOT4 fill missing arguments https://github.com/godotengine/godot/pull/40547
+	if dir:
+		dir.list_dir_begin() 
 		var file_name = dir.get_next()
+		var starting_point = path.split("/")[-1]
+		
 		while file_name != "":
 			if dir.current_is_dir():
 				if !dict.has(file_name):
-					dict[file_name] = {}
-					recursive_search(path+"/"+file_name,dict[file_name])
+					dict[file_name] = { }
+					recursive_search(org,filetypes,path+"/"+file_name,dict[file_name])
 			else:
-				if file_name.split(".")[-1] in ["mp3","ogg","MP3","OGG"]:
-					if !dict.has("songs"):
-						dict["songs"] = []
+				if file_name.split(".")[-1] in filetypes:
+					if !dict[org].has(starting_point):
+						dict[org][starting_point] = []
 					var item = {"title":file_name.split(".")[0],"url":path+"/"+file_name}
-					dict["songs"].append(item)
-				elif file_name.split(".")[-1] in ["png","jpg","JPEG","PNG","JPG"]:
-					
-					if !dict.has("pictures"):
-						dict["pictures"] = []
-					var item = {"title":file_name.split(".")[0],"url":path+"/"+file_name}
-					dict["pictures"].append(item)
+					dict[org][starting_point].append(item)
+
 			file_name = dir.get_next()
 	else:
 		print("Couldnt find path for", path)
+
 	return 1
+	
