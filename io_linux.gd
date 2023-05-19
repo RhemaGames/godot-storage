@@ -15,32 +15,35 @@ func _ready():
 #func _process(delta):
 #	pass
 
-func recursive_search(org:String,filetypes:Array,path:String,dict:Dictionary,schema:Dictionary):
+func recursive_search(org:String,filetypes:Array,ignore:Array,path:String,dict:Dictionary,schema:Dictionary):
 	var dir = DirAccess.open(path)
+	var returning:Array = []
 	if dir:
 		dir.list_dir_begin() 
 		var file_name = dir.get_next()
 		var starting_point = path.split("/")[-1]
-		
 		while file_name != "":
 			if dir.current_is_dir():
-				if !dict.has(file_name):
-					dict[file_name] = { }
-					recursive_search(org,filetypes,path+"/"+file_name,dict[file_name],schema)
-			else:
-				if file_name.split(".")[-1] in filetypes:
+				if !file_name in ignore:
 					if !dict[org].has(starting_point):
-						dict[org][starting_point] = []
+						dict[org][starting_point] = {}
+					if !dict[org][starting_point].has(file_name):
+						dict[org][starting_point][file_name] = { }
+					recursive_search(org+"/"+starting_point,filetypes,ignore,path+"/"+file_name,dict[org][starting_point][file_name],schema)
+			else:
+				#var sub = org.split("/")
+				var point = ""
+				if file_name.split(".")[-1] in filetypes:
 					var item = schema.duplicate()
 					item["title"] = file_name.split(".")[0]
 					item["url"] = path+"/"+file_name
-					dict[org][starting_point].append(item)
+					returning.append(item)
+					dict.merge(item)
 
 			file_name = dir.get_next()
 	else:
 		print("Couldnt find path for", path)
-
-	return 1
+	return returning
 	
 func read_file(url:String,inputType:String):
 	var text:Array = []
@@ -59,15 +62,22 @@ func md_2_bbc(text:String):
 		if start.count("#") > 0:
 			match start.count("#"):
 				1:
-					bbc.append("[fontsize=20]"+line.split("#")[1].strip_edges()+"[/fontsize]\n")
+					bbc.append("[font_size=34][b]"+line.split("#")[1].strip_edges()+"[/b][/font_size]\n")
 				2:
 					bbc.append("[b]"+line.split("##")[1].strip_edges()+"[/b]\n")
-				2:
-					bbc.append("[fontsize=16]"+line.split("###")[1].strip_edges()+"[/fontsize]\n")
+				3:
+					bbc.append("[font_size=16]"+line.split("###")[1].strip_edges()+"[/font_size]\n")
+		elif start.left(1) == "-":
+			bbc.append("[ul]"+line.substr(1,-1)+"[/ul]")
+		elif start.left(2) == " -":
+			bbc.append(" "+line.substr(2,-1)+"\n")
 		else:
 			if line.length() > 0:
 				bbc.append(line)
 			else:
 				bbc.append("\n")
+		
+		#bbc.append("\n")
+		
 			
 	return bbc
