@@ -32,7 +32,7 @@ func recursive_search(org:String,filetypes:Array,ignore:Array,path:String,dict:D
 					recursive_search(org+"/"+starting_point,filetypes,ignore,path+"/"+file_name,dict[org][starting_point][file_name],schema)
 			else:
 				#var sub = org.split("/")
-				var point = ""
+				#var point = ""
 				if file_name.split(".")[-1] in filetypes:
 					var item = schema.duplicate()
 					item["title"] = file_name.split(".")[0]
