@@ -29,11 +29,16 @@ func recursive_search(org:String,filetypes:Array,ignore:Array,path:String,dict:D
 						dict[org][starting_point] = {}
 					if !dict[org][starting_point].has(file_name):
 						dict[org][starting_point][file_name] = { }
-					recursive_search(org+"/"+starting_point,filetypes,ignore,path+"/"+file_name,dict[org][starting_point][file_name],schema)
+					var meh = recursive_search(org+"/"+starting_point,filetypes,ignore,path+"/"+file_name,dict[org][starting_point][file_name],schema)
+					print_debug(meh)
 			else:
-				#var sub = org.split("/")
-				#var point = ""
-				if file_name.split(".")[-1] in filetypes:
+				var extension = ""
+				if file_name.split(".").size() > 2:
+					extension = file_name.split(".")[-2]+"."+file_name.split(".")[-1]
+				else:
+					extension = file_name.split(".")[-1]
+				if extension in filetypes:
+					print_debug("Found filename: ",file_name)
 					var item = schema.duplicate()
 					item["title"] = file_name.split(".")[0]
 					item["url"] = path+"/"+file_name
